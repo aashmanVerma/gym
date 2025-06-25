@@ -14,6 +14,8 @@ import {
   Filter,
   Search
 } from "lucide-react";
+import { signOut } from "@/lib/auth-client";
+import { useRouter } from "next/navigation";
 
 interface Activity {
   id: number;
@@ -49,6 +51,8 @@ const ActivityTab = () => {
   const [error, setError] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingActivity, setEditingActivity] = useState<Activity | null>(null);
+  
+  const router = useRouter()
   
   // Form state
   const [formData, setFormData] = useState({
@@ -86,6 +90,13 @@ const ActivityTab = () => {
         setActivities(activitiesData.activities || []);
         setStats(statsData);
       } else {
+        // Check for authentication errors
+        if (activitiesResponse.status === 401 || statsResponse.status === 401) {
+          console.error('Authentication required');
+          signOut();
+          router.push('/auth');
+          return;
+        }
         throw new Error('Failed to fetch data');
       }
     } catch (err) {
@@ -117,6 +128,12 @@ const ActivityTab = () => {
         setEditingActivity(null);
         resetForm();
         fetchData(); // Refresh data
+      } else if (response.status === 401) {
+        // Handle authentication error
+        console.error('Authentication required');
+        signOut();
+        router.push('/auth');
+        return;
       } else {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Failed to create activity');

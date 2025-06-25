@@ -44,6 +44,11 @@ const Dashboard = () => {
           ?.filter((bookmark: any) => bookmark.workout !== null)
           ?.map((bookmark: any) => bookmark.workoutId) || [];
         setBookmarkedWorkouts(workoutIds);
+      } else if (response.status === 401) {
+        // Handle authentication error
+        console.error('Authentication required');
+        signOut();
+        router.push('/auth');
       }
     } catch (error) {
       console.error('Failed to fetch bookmarks:', error);
@@ -74,6 +79,11 @@ const Dashboard = () => {
             setBookmarkedWorkouts(prev => prev.filter(id => id !== workoutId));
           }
         }
+      } else if (response.status === 401) {
+        // Handle authentication error
+        console.error('Authentication required');
+        signOut();
+        router.push('/auth');
       }
     } catch (error) {
       console.error('Failed to toggle bookmark:', error);
